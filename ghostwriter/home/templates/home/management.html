@@ -21,6 +21,7 @@
   {% get_solo "commandcenter.ReportConfiguration" as report_config %}
   {% get_solo "commandcenter.SlackConfiguration" as slack_config %}
   {% get_solo "commandcenter.VirusTotalConfiguration" as vt_config %}
+  {% get_solo "commandcenter.JiraConfiguration" as jira_config %}
 
   <h2>API & Notification Configurations</h2>
   <p>These settings are managed in the Django administration panel under the <em>Command Center</em> application.</p>
@@ -163,7 +164,11 @@
     </tr>
     <tr>
       <td class="text-left icon toggle-on-icon">Jira Enabled</td>
-      <td class="text-justify">{{ jira_config.enabled }}</td>
+    {% if jira_config.enable %}
+      <td class="text-justify">Enabled</td>
+    {% else %}
+      <td class="text-justify">Disabled</td>
+    {% endif %}
     </tr>
     <tr>
       <td class="text-left icon toggle-on-icon">Image Borders</td>
