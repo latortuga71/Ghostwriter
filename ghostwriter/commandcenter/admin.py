@@ -9,6 +9,7 @@ from ghostwriter.commandcenter.models import (
     CloudServicesConfiguration,
     CompanyInformation,
     GeneralConfiguration,
+    JiraConfiguration,
     NamecheapConfiguration,
     ReportConfiguration,
     SlackConfiguration,
@@ -22,6 +23,7 @@ admin.site.register(NamecheapConfiguration, SingletonModelAdmin)
 admin.site.register(SlackConfiguration, SingletonModelAdmin)
 admin.site.register(VirusTotalConfiguration, SingletonModelAdmin)
 admin.site.register(GeneralConfiguration, SingletonModelAdmin)
+admin.site.register(JiraConfiguration, SingletonModelAdmin)
 
 
 class ReportConfigurationAdmin(SingletonModelAdmin):
