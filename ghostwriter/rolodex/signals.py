@@ -49,17 +49,16 @@ def update_project(sender, instance, **kwargs):
         logger.info(
             "Newly saved project was just created so skipping `post_save` Signal used for updates"
         )
-        logger.info(
-            "JIRA!!! -> Newly saved project was just created so we should make a jira ticket"
-        )
+        # Create a jira project for this ghost writer project
         ticket = JiraTicket()
-        project_type = instance.project_type
-        project_name = f"{instance.codename} {project_type}"
-        if ticket.enabled and ticket.api_endpoint and ticket.api_key:
+        project_name = f"{instance.codename} {instance.project_type}"
+        if ticket.enabled and ticket.api_endpoint and ticket.api_key and ticket.jira_user_account_id and ticket.jira_user:
             project_id = ticket.create_jira_project(project_name)
-            instance.jira_issue = project_id
-            instance.save()
-
+            if project_id == "":
+                pass
+            else:
+                instance.jira_issue = project_id
+                instance.save()
         # If Slack is configured for this project, send a confirmation message
         if instance.slack_channel and slack.enabled:
             blocks = [
@@ -197,4 +196,4 @@ the start date and {abs(end_date_delta)} days for the end date.",
 
                     if end_date_delta != 0:
                         entry.end_date = entry.end_date - timedelta(days=end_date_delta)
-                    entry.save()
+                    entry.save()#

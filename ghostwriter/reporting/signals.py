@@ -237,31 +237,23 @@ def adjust_severity_weight_after_delete(sender, instance, **kwargs):
             severity_queryset.filter(id=category.id).update(weight=counter)
             counter += 1
 
-
-@receiver(post_save, sender=Report)
-def create_jira_issue_from_report_findings(sender, instance, **kwargs):
-    logger.info("Testing if this is triggered everytime a report is saved!")
-
-
 @receiver(post_save, sender=ReportFindingLink)
-def create_jira_sub_issue_from_finding_marked_complete(sender, instance, **kwargs):
-    logger.info("this is triggered everytime a finding is linked to a report!")
-    logger.info(f"{instance}")
-    if instance.complete:
-        logger.info("finding is marked as complete")
+def create_jira_issue(sender, instance, **kwargs):
+    """Create jira issue when finding is linked to a report"""
+    if instance.complete and not instance.jira_sub_issue:
         report = Report.objects.get(id=instance.report.id)
-        report_id = report.id
         project_id = report.project.id
         project = Project.objects.get(id=project_id)
-        logger.info(f"finding linked to report id {report_id} project id {project_id}")
-        logger.info(f"jira parent -> {project.jira_issue}")
         sub_ticket = JiraTicket()
-        sub_ticket.create_issue("example finding summary","example finding description",project.jira_issue)
+        issue_id = sub_ticket.create_issue(instance.title,instance.description,project.jira_issue)
+        instance.jira_sub_issue = issue_id
+        post_save.disconnect(create_jira_issue, sender=ReportFindingLink)
+        instance.save()
+        post_save.connect(create_jira_issue, sender=ReportFindingLink)
 
 @receiver(post_delete, sender=ReportFindingLink)
-def create_jira_issue_from_report_findings_delete(sender, instance, **kwargs):
-    logger.info("this is triggered everytime a finding is unlinked from a report!")
+def delete_jira_issue(sender, instance, **kwargs):
+    """Delete jira issue when finding is unlinked to a report"""
     report = Report.objects.get(id=instance.report.id)
-    report_id = report.id
-    project_id = report.project.id
-    logger.info(f"finding deleted from report id {report_id} project id {project_id}")
+    sub_ticket = JiraTicket()
+    sub_ticket.delete_issue(instance.jira_sub_issue)
