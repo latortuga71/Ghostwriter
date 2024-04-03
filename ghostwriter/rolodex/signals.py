@@ -196,4 +196,4 @@ the start date and {abs(end_date_delta)} days for the end date.",
 
                     if end_date_delta != 0:
                         entry.end_date = entry.end_date - timedelta(days=end_date_delta)
-                    entry.save()#
+                    entry.save()
