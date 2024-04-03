@@ -6,18 +6,11 @@ import logging
 from datetime import date
 
 # Ghostwriter Libraries
-from ghostwriter.commandcenter.models import JiraConfiguration
-from ghostwriter.modules.jira import test_jira
 from ghostwriter.modules.notifications_slack import SlackNotification
 from ghostwriter.rolodex.models import Project
 
 # Using __name__ resolves to ghostwriter.rolodex.tasks
 logger = logging.getLogger(__name__)
-
-
-def create_jira_issue_for_project():
-    jira_config = JiraConfiguration.get_solo()
-    logger.warning("attempted to create jira issue!")
 
 
 def check_project_freshness():
