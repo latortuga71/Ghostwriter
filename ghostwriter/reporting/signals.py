@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from ghostwriter.modules.reportwriter import TemplateLinter
 from ghostwriter.reporting.models import (
     Evidence,
+    Report,
     ReportFindingLink,
     ReportTemplate,
     Severity,
@@ -233,3 +234,26 @@ def adjust_severity_weight_after_delete(sender, instance, **kwargs):
             # Adjust weight to close gap created by the removed severity category
             severity_queryset.filter(id=category.id).update(weight=counter)
             counter += 1
+
+
+@receiver(post_save, sender=Report)
+def create_jira_issue_from_report_findings(sender, instance, **kwargs):
+    logger.info("Testing if this is triggered everytime a report is saved!")
+
+
+@receiver(post_save, sender=ReportFindingLink)
+def create_jira_issue_from_report_findings_save(sender, instance, **kwargs):
+    logger.info("Testing if this is triggered everytime a report finding is saved!")
+    if instance.complete:
+        logger.info("ReportFindingLink Marked Complete!")
+        report = Report.objects.get(id=instance.report)
+        report_id = getattr(report, "id")
+        # project_id = report.project
+        logger.info(f"Report Id {report_id} Project Id ?")
+        print(report)
+        print(report_id)
+
+
+@receiver(post_delete, sender=ReportFindingLink)
+def create_jira_issue_from_report_findings_delete(sender, instance, **kwargs):
+    logger.info("Testing if this is triggered everytime a report finding is delete!")
