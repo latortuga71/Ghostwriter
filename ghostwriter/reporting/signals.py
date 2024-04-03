@@ -43,7 +43,9 @@ def evidence_update(sender, instance, **kwargs):
             if instance._current_evidence.path not in instance.document.path:
                 try:
                     os.remove(instance._current_evidence.path)
-                    logger.info("Deleted old evidence file %s", instance._current_evidence.path)
+                    logger.info(
+                        "Deleted old evidence file %s", instance._current_evidence.path
+                    )
                 except Exception:  # pragma: no cover
                     logger.exception(
                         "Failed deleting old evidence file: %s",
@@ -76,7 +78,8 @@ def evidence_update(sender, instance, **kwargs):
             prev_friendly_ref = f"{{{{.ref {instance._current_friendly_name}}}}}"
             if friendly_ref != prev_friendly_ref:
                 logger.info(
-                    "Updating content of ReportFindingLink instances with updated name for Evidence %s", instance.id
+                    "Updating content of ReportFindingLink instances with updated name for Evidence %s",
+                    instance.id,
                 )
                 try:
                     link = ReportFindingLink.objects.get(id=instance.finding.id)
@@ -89,7 +92,9 @@ def evidence_update(sender, instance, **kwargs):
                                 setattr(link, field.name, new)
                     link.save()
                 except ReportFindingLink.DoesNotExist:
-                    logger.exception("Could not find ReportFindingLink for Evidence %s", instance.id)
+                    logger.exception(
+                        "Could not find ReportFindingLink for Evidence %s", instance.id
+                    )
 
 
 @receiver(post_delete, sender=Evidence)
@@ -154,7 +159,9 @@ def clean_template(sender, instance, created, **kwargs):
                         instance._current_template.path,
                     )
         else:  # pragma: no cover
-            logger.info("Template file paths match, so will not re-run the linter or delete any files")
+            logger.info(
+                "Template file paths match, so will not re-run the linter or delete any files"
+            )
 
     if hasattr(instance, "_current_type"):
         if instance._current_type != instance.doc_type:

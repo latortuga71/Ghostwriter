@@ -1,7 +1,5 @@
-"""This contains all of functions for checking jira connectivity."""
+"""This contains all of functions for jira."""
 
-# Using __name__ resolves to ghostwriter.modules.cloud_monitors
-logger = logging.getLogger(__name__)  # Standard Libraries
 # Standard Libraries
 import logging
 import traceback
@@ -12,11 +10,26 @@ import boto3
 import pytz
 import requests
 
+# Ghostwriter Libraries
+from ghostwriter.commandcenter.models import JiraConfiguration
+
+# Using __name__ resolves to ghostwriter.modules.jira
+logger = logging.getLogger(__name__)
+
 # Set timezone for dates to UTC
 utc = pytz.UTC
 
 # Digital Ocean API endpoint for droplets
-jira_endpoint = "https://api.digitalocean.com/v2/droplets"
+jira_endpoint = "should be in the config"
+
+
+class JiraTicket:
+    """Compose Jira Tickets."""
+
+    def __init__(self):
+        jira_config = JiraConfiguration.get_solo()
+        self.enabled = jira_config.enable
+        self.endpoint = "jira_config.endpoint <- todo"
 
 
 def test_jira(jira_key):

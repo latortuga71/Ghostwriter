@@ -45,7 +45,12 @@ def update_project(sender, instance, **kwargs):
     slack = SlackNotification()
 
     if kwargs["created"]:
-        logger.info("Newly saved project was just created so skipping `post_save` Signal used for updates")
+        logger.info(
+            "Newly saved project was just created so skipping `post_save` Signal used for updates"
+        )
+        logger.info(
+            "JIRA!!! -> Newly saved project was just created so we should make a jira ticket"
+        )
         # If Slack is configured for this project, send a confirmation message
         if instance.slack_channel and slack.enabled:
             blocks = [
@@ -76,7 +81,11 @@ def update_project(sender, instance, **kwargs):
                 )
     else:
         # If the ``slack_channel`` changed and a channel is still set, send a notification
-        if instance.initial_slack_channel != instance.slack_channel and instance.slack_channel and slack.enabled:
+        if (
+            instance.initial_slack_channel != instance.slack_channel
+            and instance.slack_channel
+            and slack.enabled
+        ):
             blocks = [
                 {
                     "type": "header",
@@ -104,8 +113,13 @@ def update_project(sender, instance, **kwargs):
                     err,
                 )
         # If project dates changed, update all checkouts
-        if instance.initial_start_date != instance.start_date or instance.initial_end_date != instance.end_date:
-            logger.info("Project dates have changed so adjusting domain and server checkouts")
+        if (
+            instance.initial_start_date != instance.start_date
+            or instance.initial_end_date != instance.end_date
+        ):
+            logger.info(
+                "Project dates have changed so adjusting domain and server checkouts"
+            )
 
             domain_checkouts = History.objects.filter(project=instance)
             server_checkouts = ServerHistory.objects.filter(project=instance)
@@ -157,7 +171,9 @@ the start date and {abs(end_date_delta)} days for the end date.",
                 # Don't adjust checkouts that are in the past
                 if entry.end_date > today:
                     if start_date_delta != 0:
-                        entry.start_date = entry.start_date - timedelta(days=start_date_delta)
+                        entry.start_date = entry.start_date - timedelta(
+                            days=start_date_delta
+                        )
 
                     if end_date_delta != 0:
                         entry.end_date = entry.end_date - timedelta(days=end_date_delta)
@@ -166,7 +182,9 @@ the start date and {abs(end_date_delta)} days for the end date.",
             for entry in server_checkouts:
                 if entry.end_date > today:
                     if start_date_delta != 0:
-                        entry.start_date = entry.start_date - timedelta(days=start_date_delta)
+                        entry.start_date = entry.start_date - timedelta(
+                            days=start_date_delta
+                        )
 
                     if end_date_delta != 0:
                         entry.end_date = entry.end_date - timedelta(days=end_date_delta)
