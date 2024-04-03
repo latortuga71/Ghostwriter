@@ -9,6 +9,7 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 # Ghostwriter Libraries
+from ghostwriter.modules.jira import JiraTicket
 from ghostwriter.modules.notifications_slack import SlackNotification
 from ghostwriter.rolodex.models import Project
 from ghostwriter.shepherd.models import History, ServerHistory
@@ -51,6 +52,14 @@ def update_project(sender, instance, **kwargs):
         logger.info(
             "JIRA!!! -> Newly saved project was just created so we should make a jira ticket"
         )
+        ticket = JiraTicket()
+        project_type = instance.project_type
+        project_name = f"{instance.codename} {project_type}"
+        if ticket.enabled and ticket.api_endpoint and ticket.api_key:
+            project_id = ticket.create_jira_project(project_name)
+            instance.jira_issue = project_id
+            instance.save()
+
         # If Slack is configured for this project, send a confirmation message
         if instance.slack_channel and slack.enabled:
             blocks = [

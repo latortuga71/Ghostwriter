@@ -290,9 +290,20 @@ class VirusTotalConfiguration(SingletonModel):
 
 class JiraConfiguration(SingletonModel):
     enable = models.BooleanField(
-        default=False, help_text="Enable to allow jira issues creation."
+        default=False, help_text="Enable to allow jira API access."
+    )
+    issue_base_mode = models.BooleanField(
+        default=False,
+        help_text="Enable to use default project for all issues. Issues are created per ghost writer project, subtasks per finding."
+    )
+    api_endpoint = models.CharField(
+        max_length=255,
+        default="Jira Endpoint URL",
+        help_text="https://company.com/rest/api/latest/"
     )
     api_key = models.CharField(max_length=255, default="Jira API Key")
+    jira_user = models.CharField(max_length=255, default="Jira Username")
+    default_project = models.CharField(max_length=255, default="Use same default project to create all tasks and sub-tasks. Only used if issue_base_mode flag set.")
 
     def __str__(self):
         return "Jira Configuration"

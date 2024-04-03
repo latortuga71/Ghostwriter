@@ -9,6 +9,7 @@ from django.db.models.signals import post_delete, post_init, post_save, pre_save
 from django.dispatch import receiver
 
 # Ghostwriter Libraries
+from ghostwriter.modules.jira import JiraTicket
 from ghostwriter.modules.reportwriter import TemplateLinter
 from ghostwriter.reporting.models import (
     Evidence,
@@ -17,6 +18,7 @@ from ghostwriter.reporting.models import (
     ReportTemplate,
     Severity,
 )
+from ghostwriter.rolodex.models import Project
 
 # Using __name__ resolves to ghostwriter.reporting.signals
 logger = logging.getLogger(__name__)
@@ -242,18 +244,24 @@ def create_jira_issue_from_report_findings(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=ReportFindingLink)
-def create_jira_issue_from_report_findings_save(sender, instance, **kwargs):
-    logger.info("Testing if this is triggered everytime a report finding is saved!")
+def create_jira_sub_issue_from_finding_marked_complete(sender, instance, **kwargs):
+    logger.info("this is triggered everytime a finding is linked to a report!")
+    logger.info(f"{instance}")
     if instance.complete:
-        logger.info("ReportFindingLink Marked Complete!")
-        report = Report.objects.get(id=instance.report)
-        report_id = getattr(report, "id")
-        # project_id = report.project
-        logger.info(f"Report Id {report_id} Project Id ?")
-        print(report)
-        print(report_id)
-
+        logger.info("finding is marked as complete")
+        report = Report.objects.get(id=instance.report.id)
+        report_id = report.id
+        project_id = report.project.id
+        project = Project.objects.get(id=project_id)
+        logger.info(f"finding linked to report id {report_id} project id {project_id}")
+        logger.info(f"jira parent -> {project.jira_issue}")
+        sub_ticket = JiraTicket()
+        sub_ticket.create_issue("example finding summary","example finding description",project.jira_issue)
 
 @receiver(post_delete, sender=ReportFindingLink)
 def create_jira_issue_from_report_findings_delete(sender, instance, **kwargs):
-    logger.info("Testing if this is triggered everytime a report finding is delete!")
+    logger.info("this is triggered everytime a finding is unlinked from a report!")
+    report = Report.objects.get(id=instance.report.id)
+    report_id = report.id
+    project_id = report.project.id
+    logger.info(f"finding deleted from report id {report_id} project id {project_id}")

@@ -175,6 +175,13 @@ class Project(models.Model):
         blank=True,
         help_text="Provide an Slack channel to be used for project notifications",
     )
+    jira_issue = models.CharField(
+        "Project Jira Issue",
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Provide a Jira Issue to be used for findings taking"
+    )
     complete = models.BooleanField("Completed", default=False, help_text="Mark this project as complete")
     timezone = TimeZoneField(
         "Project Timezone",

@@ -527,7 +527,12 @@ class ReportFindingLink(models.Model):
         max_length=54,
         help_text="Set the CVSS vector for this finding",
     )
-
+    jira_sub_issue = models.TextField(
+        "SubTask IssueId",
+        null=True,
+        blank=True,
+        help_text="Jira SubTask IssueId",
+    )
     class Meta:
         ordering = ["report", "severity__weight", "position"]
         verbose_name = "Report finding"
